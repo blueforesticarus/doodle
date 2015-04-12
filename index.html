@@ -1,0 +1,477 @@
+<script>
+//PRESETS
+
+crab_preset =
+`
+//clear
+dir=-1;
+kernal([[[400,500],[600,500]]]);
+
+//loop
+draw([0,0],[1/2,1/2]);
+draw([1,0]);
+dir*=-1;
+`;
+
+dragon_preset =
+`
+//clear
+dir=-1;
+kernal([[[300, 500], [700, 500]]]);
+
+//loop
+draw([0,0],[1/2,dir*1/2]);
+draw([1,0]);
+dir*=-1;
+`;
+
+spiral_preset =
+`
+//clear
+dir=-1;
+kernal([
+    [[400,500],[600,500]],
+    [[600,500],[400,500]],
+]);
+
+//loop
+draw([0,0],[1/2,1/2]);
+draw([1,1]);
+dir*=-1;
+`;
+
+triangle_preset=
+`
+kernal([ [[0,500],[1000,500]] ]);
+
+//loop
+draw([0, 0], [1 / 3, 0]);
+draw([1 / 2, Math.sqrt(3) / 6]);
+draw([2 / 3, 0]);
+draw([1, 0]);
+`;
+
+sierpinski_preset=
+`
+h= 300*Math.sqrt(3);
+
+//draw other sides
+kernal([
+   [[800,150],[500,h+150]],
+   [[500,h+150],[200,150]]
+]);
+
+//overwrite kernel to prevent redundancy
+kernal([ [[200,150],[800,150]]]);
+
+//loop
+draw([1/2, 0], [1 / 4, Math.sqrt(3) / 4]);
+draw([3/ 4, Math.sqrt(3) / 4],[1/2, 0]);
+draw([1 / 4, Math.sqrt(3) / 4],[3/ 4, Math.sqrt(3) / 4]);
+`;
+
+circuit_preset=
+`
+//clear
+kernal([ [[0,500],[1000,500]] ]);
+
+//loop
+draw([0, 0], [1 / 3, 0]);
+draw([1/3,1/3]);
+draw([2 / 3, 1/3]);
+draw([1/3,-1/3],[2 / 3, -1/3]);
+draw([2 / 3, 0]);
+draw([1, 0]);
+`
+
+smoke_preset = 
+`
+//clear
+h= 300*Math.sqrt(3);
+
+//draw other sides
+kernal([
+   [[800,150],[500,h+150]],
+   [[500,h+150],[200,150]]
+]);
+
+//overwrite kernel to prevent redundancy
+kernal([ [[200,150],[800,150]]]);
+
+//loop
+if(l%3==0){
+draw([0, 0], [1/2, -1/10]);
+draw([1/4, 0]);
+draw([0, 0]);
+
+draw([1/4, 0], [1/2, -1/10]);
+draw([3/4, 3/5]);
+draw([1/4, 0]);
+
+draw([1/2, -1/10],[1,0]);
+draw([3/4, 3/5]);
+draw([1/2, -1/10]);
+
+draw([1/4, 0], [3/4, 3/5]);
+draw([1/2,4/5]);
+draw([1/4, 0]);
+}
+`;
+
+/*
+jewl:
+
+        //clear
+    dir=-1;
+    kernal([
+[[400,500],[600,500]],
+[[500,400],[500,600]],
+[[600,500],[400,500]],
+[[600,500],[400,500]]
+]);
+
+    //loop
+    draw([0,0],[1/2,1/2]);
+    draw([1,0]);
+    dir*=-1;
+
+eye:
+
+        //clear
+    dir=-1;
+    kernal([
+[[400,400],[600,400]],
+[[600,400],[600,600]],
+[[600,600],[400,600]],
+[[400,600],[400,400]]
+]);
+
+    //loop
+    draw([0,0],[1/2,1/2]);
+    draw([1,0]);
+    dir*=-1;
+
+
+    spider:
+
+        //clear
+    dir=-1;
+    kernal([[[400,300],[600,300]],[[600,700],[400,700]]]);
+
+    //loop
+    draw([0,0],[1/2,1/2]);
+    draw([1,0]);
+    dir*=-1;
+*/
+</script>
+
+<html>
+    <head>
+        <title>fractal</title>
+    </head>
+    <body>
+        <canvas id="canvas" width="1000px" height="1000px">Your browser is bad</canvas>
+        <img src="static.gif">
+        <div id="toggle_edit"></div>
+        <div id="container">
+            <textarea id="code">
+            </textarea>
+            <div id="buttons">
+                <select id="presets">
+                    <option value="sierpinski_preset">sierpinski</option>
+                    <option value="triangle_preset">triangle</option>
+                    <option value="crab_preset">crab</option>
+                    <option value="dragon_preset">dragon</option>
+                    <option value="spiral_preset">spiral</option>
+                    <option value="circuit_preset">circuit</option>
+                    <option value="smoke_preset">smoke</option>
+                </select>
+                <button id="load">load</button>
+                <button id="clear">clear</button>
+                <button id="forward">render</button>
+                <b id="iterations">0</b>
+            </div>
+        </div>
+    </body>
+    <style>
+
+body {
+    overflow: hidden;
+    margin: 0px;
+}
+canvas {
+    width: 100%;
+    height: 100%;
+    
+    position: absolute;
+    top: 0;
+    left: 0;
+    
+    transform: rotateX(180deg);
+
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+    
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+img {
+    width: 100%;
+    height: 100%;
+    opacity: .1;
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#toggle_edit {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    
+    width: 20px;
+    height: 20px;
+    
+    border-radius: 50%;
+    border: 2px solid black;
+    opacity: .4;
+    z-index: 10;
+    transition: .2s opacity ease-in-out;
+}
+#toggle_edit:hover {
+    opacity: .8;
+}
+
+#toggle_edit.clicked {
+    background-color: grey;
+}
+
+textarea {
+    position: absolute;
+    top: 35px;
+    left: 5px;
+    bottom: 5px;
+    width: 30%;
+    background-color: rgba(256,256,256,.6);
+    border: 2px solid grey;
+    color: green;
+    font-weight: bold;
+}
+
+#buttons {
+    position: absolute;
+    top: 5px;
+    left: 35px;
+}
+</style>
+
+<script>
+
+var container = document.getElementById("container");
+var canvas = document.getElementById("canvas");
+var toggle = document.getElementById("toggle_edit");
+var textarea = document.getElementById("code");
+var number = document.getElementById("iterations");
+var presets = document.getElementById("presets");
+
+
+var clear = document.getElementById("clear");
+var forward = document.getElementById("forward");
+var load = document.getElementById("load");
+
+
+var context = canvas.getContext("2d");
+
+var iterations = [[[[0, 500], [1000, 500]]]];
+var iteration = 0;
+var newlines = [];
+
+var line = null;
+var point = [0, 0];
+
+render = null;
+first = null;
+
+var clear_flg = true;
+
+toggle.onclick = function(event) {
+    if (container.style.display !== "none") {
+        container.style.display = "none";
+    } else {
+        container.style.display = "initial";
+    }
+};
+
+load.onclick = function(event) {
+    parseCode();
+}
+
+clear.onclick = function(event) {
+    reset();
+}
+
+forward.onclick = function(event) {
+    if(newlines.length<2000000||confirm("Are you sure (your browser might crash)")){
+        iterate();
+    }
+}
+
+presets.onchange = function(event){
+    textarea.value = eval(presets.value);
+    parseCode();
+}
+
+function reset(){
+    iteration = 0;
+    newlines = [];
+    number.innerHTML = 0;
+    wipeCanvas();
+    first();
+}
+
+function wipeCanvas() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.beginPath();
+}
+
+function kernal(array) {
+    iterations = [array];
+    for(i in array){
+        context.moveTo(array[i][0][0], array[i][0][1]);
+        context.lineTo(array[i][1][0], array[i][1][1]);
+        context.stroke();
+    }
+}
+
+function init() {
+    context.strokeStyle = "#000000";
+    presets.onchange();
+}
+
+function parseCode() {
+    var raw = textarea.value;
+    var data = raw.split("//loop");
+
+    try {
+        var loop = "function temp(i, l){" + data.pop() + "}";
+        var other = "function temp2(){" + data[0] + "}";
+
+        eval(loop);
+        render = temp;
+
+        eval(other);
+        first = temp2;
+
+        if(iteration === 0){
+            reset();
+        }
+
+        clear_flg = raw.indexOf("//clear") != -1;
+
+    } catch (error) {
+        alert("syntax error (hint: this is javascript)");
+    }
+}
+
+function iterate() {
+    if (clear_flg) {
+        wipeCanvas();
+    }
+    iteration++;
+    newlines = [];
+    var last = iterations[iterations.length - 1];
+    
+    for (i in last) {
+        line = last[i];
+        //console.log(line);
+        render(iteration, i);
+    }
+    
+    iterations.push(newlines);
+
+    context.stroke();
+    number.innerHTML = iteration;
+
+}
+
+function draw(rstart, rstop) {
+    var head = line[1];
+    var foot = line[0];
+
+    //find start and stop based on canvas coordinates
+    
+    w = head[0] - foot[0];
+    h = head[1] - foot[1];
+    c = Math.sqrt((h * h) + (w * w));
+    
+    f = w < 0 ? -1 : 1;
+    
+    var start = point;
+    var stop = point;
+    
+    if (typeof rstop === "undefined") {
+        rstop = rstart;
+    } else if (rstart[0] == 0 && rstart[1] == 0) {
+        start = foot;
+    } else {
+        px = rstart[0];
+        py = rstart[1];
+        m = c * px;
+        n = c * py;
+        ff = m < 0 ? -1 : 1;
+        p = Math.sqrt((m * m) + (n * n));
+        theta = Math.atan(h / w) + Math.atan(n / m);
+        fx = ff * f * Math.cos(theta) * p + foot[0];
+        fy = ff * f * Math.sin(theta) * p + foot[1];
+        start = [fx, fy];
+    }
+    
+    if (rstop[0] == 0 && rstop[1] == 0) {
+        stop = foot;
+    } else {
+        px = rstop[0];
+        py = rstop[1];
+        m = c * px;
+        n = c * py;
+        ff = m < 0 ? -1 : 1;
+        p = Math.sqrt((m * m) + (n * n));
+        theta = Math.atan(h / w) + Math.atan(n / m);
+        fx = ff * f * Math.cos(theta) * p + foot[0];
+        fy = ff * f * Math.sin(theta) * p + foot[1];
+        stop = [fx, fy];
+    }
+
+    /*
+            console.log("Drawing Line:");
+            console.log(start);
+            console.log(stop);
+            console.log("");
+            */
+    
+    context.moveTo(start[0], start[1]);
+    context.lineTo(stop[0], stop[1]);
+    
+    newlines.push([start, stop]);
+    point = stop;
+}
+
+function triangleTest(i,l) {
+    draw([0, 0], [1 / 3, 0]);
+    draw([1 / 2, Math.sqrt(3) / 6]);
+    draw([2 / 3, 0]);
+    draw([1, 0]);
+}
+
+function triangleFirst(){
+    kernal([ [[0,500],[1000,500]] ]);
+}
+
+init();
+</script>
+</html>
