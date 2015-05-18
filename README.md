@@ -1,25 +1,57 @@
-# doodle
-a little fun with fractals and javascript
+#DOODLE: fractal generator
+A web app for defining and rendering line-based fractals using javascript
 
-##HOW TO USE:
+##How To Use:
+Left Textarea: box where code is written
+Load Button: loads code into the renderer
+Save Button: save code to local storage
+Delete Button: delete fractal from cookies
 
-###loop
-all code above "//loop" is recursive code
-each iteration this code will be called for each line you create
-a call to line takes four parameters (x1, y1,x2,y2)
-the line function will draw a line from the point one to point two, in a coordinate space such that the current line (of the previous iteration) goes from (0,0) to (1,0)
+X Button: clear/reset fractal
+-must be called after loading
+< Button: go back an generation
+> Button: render next generation
+#: number generation currently displayed
 
-###init
-code before "//loop" is init code
-init code is only called when you clear the canvas (reseting the doodle) or load new code with an empty canvas
-the kernal function will set the starting lines, calling it multible times will overwrite the previous lines (wont be used for calculating first iteratio) but leave them draw
 
-###flags
-the "//clear" flag anywhere in the code will cause the lines of each iterationto be cleared before drawing the next iteration
+##Code:
+Code is divided into two sections: init and loop
 
-###running
-after changing code in textarea press load button to load you your script
-press clear to get rid of current fractal
-press render button to render next iteration
- 
---unfortunately you cannot zoom in as of yet 
+###Init
+The init section(everything before the "//loop")
+called only once before the fractal is rendered
+
+####Kernal Function:
+you must define a kernal using the kernal function "kernal([ LIST OF LINES ])"
+This function will define the starting lines or "kernal" of the fractal
+Multible calls to kernal() will replace the kernal, but leave the origional kernal lines drawn
+lines passed into kernal() are of the form [[ startx , starty ],[ endx , endy ]] 
+where the coordiate values go from [0,0] (bottom left corner) to [1000,1000] (top right corner)
+
+Standard javascript variable declarations are allowed in the kernal, 
+but do not use "var" if you wish these values to be accessable in the loop
+
+The placement of "//clear" at the top of the function will tell the render to clear the canvas
+before each generation, getting rid of the old lines
+
+###Loop
+The loop section(everything after "//loop")
+
+called once for every line drawn in the previous generation 
+(or kernal if it is the first gen.)
+
+####Draw Function:
+draws a line to the canvas in a coordinate space based of the line for which...
+this iteration of the loop function is being called AKA. current iterations line
+
+first call must provide a start and end coordinate 
+susequent calls may provide only the end coordinate and the previous end coor. is used as the start coor.
+
+coordinates are passed as [[ startx , starty ],[ endx , endy ]]
+where (0,0) is the start point of the current iterations line
+and (1,0) is the end point of the current iterations line 
+and (0,1) is the length of the current iterations line
+- up being a direction perpendicular to the current iterations line
+
+
+In order to make sure variables used in your fractal code do not have any naming conflicts with the code which runs the page, prefix all variables with an underscore example) "_height = 10;" 
