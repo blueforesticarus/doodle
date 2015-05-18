@@ -1,194 +1,57 @@
-<script>
-//PRESETS
-
-crab_preset =
-`
-//clear
-dir=-1;
-kernal([[[400,500],[600,500]]]);
-
-//loop
-draw([0,0],[1/2,1/2]);
-draw([1,0]);
-dir*=-1;
-`;
-
-dragon_preset =
-`
-//clear
-dir=-1;
-kernal([[[300, 500], [700, 500]]]);
-
-//loop
-draw([0,0],[1/2,dir*1/2]);
-draw([1,0]);
-dir*=-1;
-`;
-
-spiral_preset =
-`
-//clear
-dir=-1;
-kernal([
-    [[400,500],[600,500]],
-    [[600,500],[400,500]],
-]);
-
-//loop
-draw([0,0],[1/2,1/2]);
-draw([1,1]);
-dir*=-1;
-`;
-
-triangle_preset=
-`
-kernal([ [[0,500],[1000,500]] ]);
-
-//loop
-draw([0, 0], [1 / 3, 0]);
-draw([1 / 2, Math.sqrt(3) / 6]);
-draw([2 / 3, 0]);
-draw([1, 0]);
-`;
-
-sierpinski_preset=
-`
-h= 300*Math.sqrt(3);
-
-//draw other sides
-kernal([
-   [[800,150],[500,h+150]],
-   [[500,h+150],[200,150]]
-]);
-
-//overwrite kernel to prevent redundancy
-kernal([ [[200,150],[800,150]]]);
-
-//loop
-draw([1/2, 0], [1 / 4, Math.sqrt(3) / 4]);
-draw([3/ 4, Math.sqrt(3) / 4],[1/2, 0]);
-draw([1 / 4, Math.sqrt(3) / 4],[3/ 4, Math.sqrt(3) / 4]);
-`;
-
-circuit_preset=
-`
-//clear
-kernal([ [[0,500],[1000,500]] ]);
-
-//loop
-draw([0, 0], [1 / 3, 0]);
-draw([1/3,1/3]);
-draw([2 / 3, 1/3]);
-draw([1/3,-1/3],[2 / 3, -1/3]);
-draw([2 / 3, 0]);
-draw([1, 0]);
-`
-
-smoke_preset = 
-`
-//clear
-h= 300*Math.sqrt(3);
-
-//draw other sides
-kernal([
-   [[800,150],[500,h+150]],
-   [[500,h+150],[200,150]]
-]);
-
-//overwrite kernel to prevent redundancy
-kernal([ [[200,150],[800,150]]]);
-
-//loop
-if(l%3==0){
-draw([0, 0], [1/2, -1/10]);
-draw([1/4, 0]);
-draw([0, 0]);
-
-draw([1/4, 0], [1/2, -1/10]);
-draw([3/4, 3/5]);
-draw([1/4, 0]);
-
-draw([1/2, -1/10],[1,0]);
-draw([3/4, 3/5]);
-draw([1/2, -1/10]);
-
-draw([1/4, 0], [3/4, 3/5]);
-draw([1/2,4/5]);
-draw([1/4, 0]);
-}
-`;
-
-/*
-jewl:
-
-        //clear
-    dir=-1;
-    kernal([
-[[400,500],[600,500]],
-[[500,400],[500,600]],
-[[600,500],[400,500]],
-[[600,500],[400,500]]
-]);
-
-    //loop
-    draw([0,0],[1/2,1/2]);
-    draw([1,0]);
-    dir*=-1;
-
-eye:
-
-        //clear
-    dir=-1;
-    kernal([
-[[400,400],[600,400]],
-[[600,400],[600,600]],
-[[600,600],[400,600]],
-[[400,600],[400,400]]
-]);
-
-    //loop
-    draw([0,0],[1/2,1/2]);
-    draw([1,0]);
-    dir*=-1;
-
-
-    spider:
-
-        //clear
-    dir=-1;
-    kernal([[[400,300],[600,300]],[[600,700],[400,700]]]);
-
-    //loop
-    draw([0,0],[1/2,1/2]);
-    draw([1,0]);
-    dir*=-1;
-*/
-</script>
-
 <html>
     <head>
         <title>fractal</title>
+        <script src="examples.js"></script>
+
     </head>
     <body>
         <canvas id="canvas" width="1000px" height="1000px">Your browser is bad</canvas>
         <img src="static.gif">
         <div id="toggle_edit"></div>
         <div id="container">
-            <textarea id="code">
+            
+            <textarea id="code"></textarea>
+            <textarea id="info" readonly>
+DOODLE: fractal generator
+    A web app for defining and 
+    rendering line-based fractals 
+    using javascript.
+
+
+How To Use:
+    Left Textarea: box where code is written
+    Circle Button: show/hide 
+    Dropdown: select a preset
+    Textbox: name of fractal
+    Load Button: loads code into the renderer
+    Save Button: save code to cookies
+    Delete Button: delete fractal from cookies
+
+    X Button: clear/reset fractal
+        -must be called after loading
+    < Button: go back an generation
+    > Button: render next generation
+    #: number generation currently displayed
+
+Help: public.mechasdf.com/doodle/help.txt
+Contact: erichspaker@gmail.com
+Github: github.com/blueForestIcarus/doodle
             </textarea>
+
             <div id="buttons">
-                <select id="presets">
-                    <option value="sierpinski_preset">sierpinski</option>
-                    <option value="triangle_preset">triangle</option>
-                    <option value="crab_preset">crab</option>
-                    <option value="dragon_preset">dragon</option>
-                    <option value="spiral_preset">spiral</option>
-                    <option value="circuit_preset">circuit</option>
-                    <option value="smoke_preset">smoke</option>
+                <select id="select_preset">
+
                 </select>
+                <input id="title" type="text" size="15" maxlength="30"></input>
                 <button id="load">load</button>
-                <button id="clear">clear</button>
-                <button id="forward">render</button>
+                <button id="save">save</button>
+                <button id="delete">delete</button>
+
+                 <b>|</b>
+
+                <button id="clear">X</button>
+                <button id="backward"> < </button>
+                <button id="forward"> > </button>
                 <b id="iterations">0</b>
             </div>
         </div>
@@ -254,15 +117,28 @@ img {
 
 textarea {
     position: absolute;
-    top: 35px;
-    left: 5px;
-    bottom: 5px;
-    width: 30%;
     background-color: rgba(256,256,256,.6);
     border: 2px solid grey;
     color: green;
     font-weight: bold;
 }
+
+#code{
+    top: 35px;
+    left: 5px;
+    bottom: 5px;
+    width: 30%;
+}
+
+#info{
+    top: 35px;
+    right: 5px;
+    width: 30%;
+    height: 40%;
+    resize: none;
+
+}
+
 
 #buttons {
     position: absolute;
@@ -273,19 +149,28 @@ textarea {
 
 <script>
 
+//elements
 var container = document.getElementById("container");
 var canvas = document.getElementById("canvas");
-var toggle = document.getElementById("toggle_edit");
 var textarea = document.getElementById("code");
-var number = document.getElementById("iterations");
-var presets = document.getElementById("presets");
+var toggle = document.getElementById("toggle_edit");
+
+var select_preset = document.getElementById("select_preset");
+var title = document.getElementById("title");
+
+var load = document.getElementById("load");
+var save = document.getElementById("save");
+var del = document.getElementById("delete");
 
 
 var clear = document.getElementById("clear");
 var forward = document.getElementById("forward");
-var load = document.getElementById("load");
+var backward = document.getElementById("backward");
+
+var number = document.getElementById("iterations");
 
 
+//setup
 var context = canvas.getContext("2d");
 
 var iterations = [[[[0, 500], [1000, 500]]]];
@@ -300,6 +185,12 @@ first = null;
 
 var clear_flg = true;
 
+var cookie_presets = [];
+
+var time = 0;
+var factor = 0;
+var rendering = false;
+
 toggle.onclick = function(event) {
     if (container.style.display !== "none") {
         container.style.display = "none";
@@ -308,8 +199,64 @@ toggle.onclick = function(event) {
     }
 };
 
+select_preset.onchange = function(event){
+    var index=select_preset.value;
+    if(index.indexOf("l") != -1){
+        del.style.display = "initial";
+        index = index.split("l")[0];
+        textarea.value = cookie_presets[index][1];
+        title.value = cookie_presets[index][0];
+    }else{        
+        del.style.display = "none";
+        textarea.value = presets[index][1];
+        title.value = presets[index][0];
+    }
+    parseCode();
+}
+
 load.onclick = function(event) {
     parseCode();
+}
+
+save.onclick= function(event) {
+    if(title.value.length<=0){
+        alert("must specify a title");
+    }
+    if (typeof window.localStorage == "undefined") {
+        alert("localStorage not availiable");
+        return;
+    }
+
+    var data = [title.value , code.value];
+
+    var i = get_cookie_index(data[0]);
+
+    if(i != -1){
+        cookie_presets[i] = data;
+
+    }else{
+        cookie_presets.push(data);
+    }
+
+    bake_cookie("fractals",cookie_presets);
+    update_presets();
+}
+
+del.onclick = function(event) {
+    var data = title.value;
+
+    var i = get_cookie_index(data);
+    if(i === -1){
+        return;
+    }
+
+    cookie_presets.splice(i,1);
+
+    bake_cookie("fractals",cookie_presets);
+    update_presets();
+    select_preset.onchange();
+    return;
+
 }
 
 clear.onclick = function(event) {
@@ -317,20 +264,50 @@ clear.onclick = function(event) {
 }
 
 forward.onclick = function(event) {
-    if(newlines.length<2000000||confirm("Are you sure (your browser might crash)")){
-        iterate();
+    if( time*factor < 12000||confirm("Are you sure (your browser might crash)")){
+        if(!rendering){
+            iterate();
+        }
     }
 }
 
-presets.onchange = function(event){
-    textarea.value = eval(presets.value);
-    parseCode();
+backward.onclick= function(event) {
+    if(iteration == 0 || rendering){
+        return;
+    }
+    wipeCanvas();
+    iterations.splice(iterations.length-1);
+    if(clear_flg){
+        drawIteration(iterations.length-1);
+    }else{
+        for(var i = 0 ; i < iterations.length ; i++){
+            drawIteration(i);
+        }
+    }
+
+    iteration--;
+    context.stroke();
+    number.innerHTML = iteration;
+}
+
+function drawIteration(index){
+    var lines = iterations[index];
+    for(var l = 0 ; l < lines.length ; l++){
+        var line = lines[l];
+        var start = line[0];
+        var stop = line[1];
+
+        context.moveTo(start[0], start[1]);
+        context.lineTo(stop[0], stop[1]);
+    }
 }
 
 function reset(){
     iteration = 0;
     newlines = [];
     number.innerHTML = 0;
+    time = 0;
+    factor = 0;
     wipeCanvas();
     first();
 }
@@ -351,7 +328,42 @@ function kernal(array) {
 
 function init() {
     context.strokeStyle = "#000000";
-    presets.onchange();
+    update_presets();
+    select_preset.onchange();
+}
+
+function update_presets(){
+    while (select_preset.firstChild) {
+        select_preset.removeChild(select_preset.firstChild);
+    }
+
+    var group = document.createElement("optgroup");
+    group.label = "server";
+    select_preset.appendChild(group);
+
+    for(var i = 0 ; i < presets.length ; i++){
+        var label = presets[i][0];
+        var element = document.createElement("option");
+        element.value = i;
+        element.innerHTML = label;
+        group.appendChild(element);
+    }
+
+    cookie_presets = read_cookie("fractals");
+
+    group = document.createElement("optgroup");
+    group.label = "local";
+    if(cookie_presets.length>0){
+        select_preset.appendChild(group)
+    };
+
+    for(var i = 0 ; i < cookie_presets.length ; i++){
+        var label = cookie_presets[i][0];
+        var element = document.createElement("option");
+        element.value = i + "l";
+        element.innerHTML = label;
+        group.appendChild(element);
+    }
 }
 
 function parseCode() {
@@ -380,6 +392,9 @@ function parseCode() {
 }
 
 function iterate() {
+    var sTime = new Date().getTime();
+    rendering = true;
+
     if (clear_flg) {
         wipeCanvas();
     }
@@ -398,6 +413,15 @@ function iterate() {
     context.stroke();
     number.innerHTML = iteration;
 
+    var fTime = new Date().getTime();
+    var delta = fTime-sTime;
+    
+    factor = delta / (time == 0 ? 1 : time);
+    time = delta;
+
+    console.log("rendered " + iteration + " in " + delta + " milliseconds");
+
+    rendering = false;
 }
 
 function draw(rstart, rstop) {
@@ -470,6 +494,55 @@ function triangleTest(i,l) {
 
 function triangleFirst(){
     kernal([ [[0,500],[1000,500]] ]);
+}
+
+function bake_cookie(name, value) {
+    if (typeof window.localStorage != "undefined") {
+        var data = [name, '=', JSON.stringify(value)].join('');
+        window.localStorage.setItem(name, data);
+    }else{
+        console.warn("no local storage");
+    }
+
+}
+
+function read_cookie(name) {
+    try{
+        if (typeof window.localStorage != "undefined") {
+            result = window.localStorage.getItem(name).split("fractals=")[1];
+            result = result != null ? JSON.parse(result) : null;
+            return result != null ? fixList(result) : [];
+        }
+        console.warn("no local storage");
+        return [];
+    }catch(e){
+        console.warn(e);
+        return [];
+    }
+}
+
+function get_cookie_index(data){
+    for(var i = 0 ; i < cookie_presets.length ; i++){
+        try{
+            if(cookie_presets[i][0] === data){
+                return i;
+            }
+        }catch(e){
+            console.warn(e);
+        }
+    }
+    return -1;
+}
+
+function fixList(list){
+    var newList = [];
+    for(var i = 0 ; i < list.length ; i++){
+        if(list[i] != null && list[i].length === 2){
+            newList.push(list[i]);
+        }
+    }
+
+    return newList;
 }
 
 init();
