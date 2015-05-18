@@ -7,10 +7,10 @@ Load Button: loads code into the renderer
 Save Button: save code to local storage
 Delete Button: delete fractal from cookies
 
-X Button: clear/reset fractal
--must be called after loading
-< Button: go back an generation
-> Button: render next generation
+"X" Button: clear/reset fractal
+  -must be called after loading
+"<" Button: go back an generation
+">" Button: render next generation
 #: number generation currently displayed
 
 
