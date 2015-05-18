@@ -11,7 +11,7 @@ Delete Button: delete fractal from cookies
   -must be called after loading
 "<" Button: go back an generation
 ">" Button: render next generation
-#: number generation currently displayed
+"#": number generation currently displayed
 
 
 ##Code:
